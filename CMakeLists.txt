@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD 20)
 #add_executable(WorstBackBreaker main.cpp)
 
 add_subdirectory(src/machine_learning/neat)
+add_subdirectory(src/data_structures)
 

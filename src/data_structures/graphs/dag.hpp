@@ -20,28 +20,28 @@ namespace ml::neat {
             std::uint32_t depth;
             std::vector<std::uint32_t> out;
 
-            auto get_out_connection_count() -> const std::uint32_t {
+            auto get_out_connection_count() const -> const std::uint32_t {
 
                 return out.size();
             };
         };
 
-        std::vector<Node> nodes;
+        std::vector<Node> m_nodes;
 
         auto create_node() -> void {
 
-            nodes.emplace_back();
+            m_nodes.emplace_back();
         }
 
-        auto is_valid(std::uint32_t i) -> const bool {
+        auto is_valid(std::uint32_t i) const -> const bool {
 
-            return i < nodes.size();
+            return i < m_nodes.size();
         }
 
 
         auto is_ancestor(uint32_t node_1, uint32_t node_2) const -> bool {
 
-            auto &out = nodes[node_1].out;
+            auto &out = m_nodes[node_1].out;
             if (is_parent(node_1, node_2)) {
 
                 return true;
@@ -57,9 +57,9 @@ namespace ml::neat {
         }
 
 
-        auto is_parent(uint32_t node_1, uint32_t node_2) const -> bool {
+        [[nodiscard]] auto is_parent(uint32_t node_1, uint32_t node_2) const -> bool {
 
-            auto &out = nodes[node_1].out;
+            auto &out = m_nodes[node_1].out;
             for (auto const &o: out) {
 
                 if (o == node_2) {
@@ -94,24 +94,24 @@ namespace ml::neat {
 
                 return false;
             }
-            nodes[from].out.push_back(to);
-            nodes[to].incoming++;
+            m_nodes[from].out.push_back(to);
+            m_nodes[to].incoming++;
             return true;
         }
 
         auto compute_depth() -> void {
 
-            auto const node_count = nodes.size();
+            auto const node_count = m_nodes.size();
             std::vector<std::uint32_t> start_nodes;
             std::vector<std::uint32_t> incoming;
             incoming.reserve(node_count);
 
-            for (auto const &n: nodes) {
+            for (auto const &n: m_nodes) {
 
                 incoming.push_back(n.incoming);
             }
             std::uint32_t i{0};
-            for (auto &n: nodes) {
+            for (auto &n: m_nodes) {
 
                 if (n.incoming == 0) {
 
@@ -126,11 +126,11 @@ namespace ml::neat {
                 std::uint32_t const idx = start_nodes.back();
                 start_nodes.pop_back();
 
-                Node const &n = nodes[idx];
+                Node const &n = m_nodes[idx];
                 for (auto const o: n.out) {
 
                     incoming[o]--;
-                    Node &connected = nodes[o];
+                    Node &connected = m_nodes[o];
                     connected.depth = std::max(connected.depth, n.depth + 1);
                     if (incoming[o] == 0) {
 
@@ -142,17 +142,42 @@ namespace ml::neat {
 
         auto get_order() const -> std::vector<std::uint32_t> {
 
-            std::vector<std::uint32_t> order(nodes.size());
+            std::vector<std::uint32_t> order(m_nodes.size());
 
-            for(std::uint32_t i = 0; i < nodes.size(); i++) {
+            for (std::uint32_t i = 0; i < m_nodes.size(); i++) {
 
                 order[i] = i;
             }
             std::sort(order.begin(), order.end(), [this](std::uint32_t a, std::uint32_t b) {
 
-                return nodes[a].depth < nodes[b].depth;
+                return m_nodes[a].depth < m_nodes[b].depth;
             });
             return order;
+        }
+
+        auto remove_connection(std::uint32_t from, std::uint32_t to) -> void {
+            auto &connections = m_nodes[from].out;
+            auto const count = static_cast<std::uint32_t>(connections.size());
+            std::uint32_t found{0};
+
+            for (std::uint32_t i{0}; i < count - found;) {
+
+                if (connections[i] == to) {
+
+                    std::swap(connections[i], connections.back());
+                    connections.pop_back();
+                    --m_nodes[to].incoming;
+                    ++found;
+                }
+                else {
+
+                    ++i;
+                }
+            }
+            if (!found) {
+
+                std::cout << "[WARNING] Connection " << from << " -> " << to << " not found" << "\n";
+            }
         }
     };
 
