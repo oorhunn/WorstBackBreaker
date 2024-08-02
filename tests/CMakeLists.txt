@@ -14,4 +14,5 @@ include(GoogleTest)
 
 
 add_subdirectory(thread_pool)
+add_subdirectory(data_structures)
 
