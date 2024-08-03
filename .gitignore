@@ -1,3 +1,4 @@
 /cmake-*
 /tests/cmake-*
+/src/machine_learning/cmake-*
 .idea/*
