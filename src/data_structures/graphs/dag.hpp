@@ -10,7 +10,7 @@
 #include <cassert>
 
 
-namespace ml::neat {
+namespace data_structures::graphs {
 
     struct DAG {
 

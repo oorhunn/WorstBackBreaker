@@ -7,8 +7,10 @@
 
 #include <cmath>
 
+
 namespace ml::neat {
 
+    using ActivationPtr = std::double_t (*)(std::double_t);
 
     enum class Activation : std::uint8_t {
 
@@ -19,6 +21,29 @@ namespace ml::neat {
     };
 
     struct ActivationFunction {
+
+        auto static  get_function(Activation activation) -> ActivationPtr {
+
+            switch (activation) {
+
+                case Activation::None:
+
+                    return none;
+                case Activation::Sigmoid:
+
+                    return sigmoid;
+                case Activation::Relu:
+
+                    return relu;
+                case Activation::Tanh:
+
+                    return tanh;
+
+                default:
+
+                    return none;
+            }
+        }
 
         auto apply(std::double_t x, Activation activation) -> std::double_t {
 
@@ -41,22 +66,22 @@ namespace ml::neat {
             }
         }
 
-        auto none(std::double_t x) -> std::double_t {
+        auto static none(std::double_t x) -> std::double_t {
 
             return x;
         }
 
-        auto sigmoid(std::double_t x) -> std::double_t {
+        auto static sigmoid(std::double_t x) -> std::double_t {
 
             return 1 / (1 + std::exp(-x));
         }
 
-        auto relu(std::double_t x) -> std::double_t {
+        auto static relu(std::double_t x) -> std::double_t {
 
             return x > 0 ? x : 0;
         }
 
-        auto tanh(std::double_t x) -> std::double_t {
+        auto static tanh(std::double_t x) -> std::double_t {
 
             return std::tanh(x);
         }
