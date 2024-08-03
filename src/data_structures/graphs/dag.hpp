@@ -174,10 +174,6 @@ namespace ml::neat {
                     ++i;
                 }
             }
-            if (!found) {
-
-                std::cout << "[WARNING] Connection " << from << " -> " << to << " not found" << "\n";
-            }
         }
     };
 
