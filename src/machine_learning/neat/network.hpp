@@ -93,6 +93,16 @@ namespace ml::neat {
             return m_slots[i].m_node;
         }
 
+        auto get_connection(std::uint32_t i) -> Connection & {
+
+            return m_slots[m_info.get_node_count() + i].m_connection;
+        }
+
+        auto get_connection(std::uint32_t i) const -> const Connection & {
+
+            return m_slots[m_info.get_node_count() + i].m_connection;
+        }
+
         auto set_node_depth(std::uint32_t i, std::uint32_t depth) -> void {
 
             m_slots[i].m_node.m_depth = depth;
@@ -100,9 +110,95 @@ namespace ml::neat {
 
         auto set_connection(std::uint32_t i, std::uint32_t to, std::double_t weight) -> void {
 
-            Connection &connection
+            Connection &connection = get_connection(i);
+            connection.m_to = to;
+            connection.m_weight = weight;
+        }
+
+        auto get_output(std::uint32_t i) -> Node & {
+
+            return m_slots[m_info.m_inputs + m_info.m_hidden + i].m_node;
+        }
+
+        auto execute(std::vector<std::double_t> const &input) -> bool {
+
+            if (input.size() != m_info.m_inputs) {
+
+                return false;
+            }
+            foreach_node([](Node &n, std::uint32_t) {
+
+                n.m_sum = 0.0;
+            });
+
+            for (std::uint32_t i{0}; i < m_info.m_inputs; ++i) {
+
+                m_slots[i].m_node.m_sum = input[i];
+            }
+
+            std::uint32_t current_connection{0};
+            std::uint32_t const node_count = m_info.get_node_count();
+            // execute network
+            for (std::uint32_t i{0}; i < node_count; i++) {
+
+                Node const &node = m_slots[i].m_node;
+
+                std::double_t const value = node.get_value();
+
+                for (std::uint32_t o{0}; o < node.m_connection_count; o++) {
+
+                    Connection &c = get_connection(current_connection++);
+                    c.m_value = value * c.m_weight;
+                    get_node(c.m_to).m_sum += c.m_value;
+                }
+            }
+
+            // update output
+            for (std::uint32_t i{0}; i < m_info.m_outputs; i++) {
+
+                m_output[i] = get_output(i).get_value();
+            }
+            return true;
+        }
+
+        template<typename TCallback>
+        auto foreach_node(TCallback &&callback) -> void {
+
+            std::uint32_t const node_count = m_info.get_node_count();
+            for (uint32_t i{0}; i < node_count; ++i) {
+
+                callback(m_slots[i].m_node, i);
+            }
+        }
+
+        template<typename TCallback>
+        auto foreach_node(TCallback &&callback) const -> void {
+
+            std::uint32_t const node_count = m_info.get_node_count();
+            for (std::uint32_t i{0}; i < node_count; ++i) {
+
+                callback(m_slots[i].m_node, i);
+            }
+        }
+
+        template<typename TCallback>
+        auto foreach_connection(TCallback &&callback) const -> void {
+
+            for (std::uint32_t i{0}; i < m_connection_count; ++i) {
+
+                callback(get_connection(i), i);
+            }
+        }
+
+        auto get_result() const -> std::vector<std::double_t> const & {
+
+            return m_output;
+        }
+
+        auto get_depth() const -> std::uint32_t {
+
+            return m_max_depth;
         }
     };
-
 }
 #endif //WORSTBACKBREAKER_NETWORK_HPP
