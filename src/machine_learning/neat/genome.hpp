@@ -5,4 +5,10 @@
 #ifndef WORSTBACKBREAKER_GENOME_HPP
 #define WORSTBACKBREAKER_GENOME_HPP
 
+
+namespace ml::neat {
+
+
+}
+
 #endif //WORSTBACKBREAKER_GENOME_HPP
