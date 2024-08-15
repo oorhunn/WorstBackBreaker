@@ -3,7 +3,7 @@ include_guard()
 project(thread_pool_test)
 
 add_executable(${PROJECT_NAME}
-        test_thread_pool.cpp
+        thread_pool_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

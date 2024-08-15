@@ -5,6 +5,7 @@ project(tests)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_PATH ${CMAKE_CURRENT_LIST_DIR}/../src/)
+include_directories(${SRC_PATH}/common)
 
 
 
