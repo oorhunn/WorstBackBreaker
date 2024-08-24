@@ -4,6 +4,7 @@ project(worst_common_test)
 
 add_executable(${PROJECT_NAME}
         binary_io_test.cpp
+        number_generator_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
