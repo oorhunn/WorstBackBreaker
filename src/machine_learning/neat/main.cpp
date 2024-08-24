@@ -3,6 +3,7 @@
 //
 
 #include "mutator.hpp"
+#include "network_generator.hpp"
 
 int main() {
 
